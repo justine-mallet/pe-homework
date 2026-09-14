@@ -5,14 +5,12 @@ jupytext:
   text_representation:
     extension: .md
     format_name: myst
+    format_version: 0.13
+    jupytext_version: 1.19.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
   name: python3
-language_info:
-  name: python
-  pygments_lexer: ipython3
-  nbconvert_exporter: python
 ---
 
 # indexation et *slicing*
@@ -224,8 +222,6 @@ tab
 ```
 
 ```{code-cell} ipython3
-:lines_to_next_cell: 2
-
 [tab.shape[i] for i in range(tab.ndim)]
 ```
 
@@ -251,6 +247,10 @@ tab.shape
 
 ```{code-cell} ipython3
 # votre code
+tab = np.linspace(2,60,30)
+tab.resize((2,5,3))
+print(tab[(0,1,2)])
+print(tab)
 ```
 
 +++ {"cell_style": "center"}
@@ -278,6 +278,11 @@ tab.shape
 
 ```{code-cell} ipython3
 # votre code ici
+tab = (np.random.randint(0,101,(3*2*5*4)))
+tab.resize((3,2,5,4))
+print(tab)
+
+print(tab[(0,0)].size)
 ```
 
 ## accéder à un sous-tableau (slicing)
@@ -525,6 +530,7 @@ donc
 
 ```{code-cell} ipython3
 # votre code
+print(tab[:,0,1:3,1:4])
 ```
 
 +++ {"tags": ["framed_cell"]}
@@ -675,6 +681,13 @@ tab1.base
 
 ```{code-cell} ipython3
 # votre code ici
+tab = np.arange(2,25,2)
+
+#Je ne comprends pas le problème, il semble être posé par mon utilisation de arrange (j'avais fait les manipulations avec linspace et 0 problème)
+
+#tab.reshape(2,3,2)
+tab2 = tab1[:,::-1,::-1]
+print(tab2)
 ```
 
 +++ {"tags": ["framed_cell"]}
@@ -751,7 +764,14 @@ M
 
 Écrivez une fonction `zebre`, qui prend en argument un entier *n* et qui fabrique un tableau carré de coté `n`, formé d'une alternance de colonnes de 0 et de colonnes de 1.
 
-+++
+```{code-cell} ipython3
+def zebre(n):
+    lignes, colonnes = np.indices((n,n))
+    out = np.vectorize(lambda x: (x % 2))(colonnes)
+    return(out)
+
+print(zebre(5))
+```
 
 par exemple pour `n=4` on s'attend à ceci
 
@@ -791,7 +811,10 @@ array([[0, 1, 0, 1, 0],
 # a vous de jouer
 
 def checkers(n, up_left=True):
-    pass
+    add = 1 if up_left else 0
+    i, c = np.indices((n,n))
+    out = np.vectorize(lambda x: (x + add) % 2)(c + i)
+    return out
 ```
 
 ```{code-cell} ipython3
@@ -839,26 +862,24 @@ array([[0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1],
 ```
 
 ```{code-cell} ipython3
-:tags: [level_advanced]
-
 #  vous de jouer
+def get_ind(x,size):
+    return (x//size,x%size)
+
+def damier_builder(k,size,x):
+    lin,col = get_ind(x,size)
+    return ((((lin//k)%2) + ((col//k)%2)) %2)
 
 def block_checkers(n, k):
-    pass
+    p = n*k
+    tmp = np.arange(((p)**2))
+    tmp.resize((p,p))
+    
+    out = np.vectorize(lambda x: damier_builder(k,p,x))(tmp)
+    return out
 ```
 
 ```{code-cell} ipython3
-:tags: [level_advanced]
-
-block_checkers(3, 2)
-```
-
-```{code-cell} ipython3
-:tags: [level_advanced]
-
-# doit vous donner la figure ci-dessus
-# éventuellement avec des False/True au lieu de 0/1
-
 block_checkers(4, 3)
 ```
 
@@ -891,9 +912,21 @@ array([[0, 1, 2, 3, 4, 3, 2, 1, 0],
 
 ```{code-cell} ipython3
 # à vous de jouer
+def get_ind(x,size):
+    return (x//size,x%size)
+
+def stairmake(n,x):
+    p = n*2 + 1
+    lin, col = get_ind(x,(p))
+    #calcul de l'écart des coins selon la coordonée de colone et de ligne
+    return (min(lin,(p - 1 - lin)) + min(col, (p - 1 - col)))
 
 def stairs(n):
-    pass
+    p = n*2 + 1
+    tmp = np.arange(((p)**2))
+    tmp.resize((p,p))
+    out = np.vectorize(lambda x : stairmake(n,x))(tmp)
+    return out
 ```
 
 ```{code-cell} ipython3
